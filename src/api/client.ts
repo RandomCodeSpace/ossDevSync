@@ -14,46 +14,50 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
+function projectParam(projectPath?: string, prefix: '?' | '&' = '?'): string {
+  return projectPath ? `${prefix}project=${encodeURIComponent(projectPath)}` : '';
+}
+
 // Graph API
-export async function fetchGraph(): Promise<{ nodes: GraphNode[]; edges: GraphEdge[] }> {
-  return fetchJson(`${BASE_URL}/graph`);
+export async function fetchGraph(projectPath?: string): Promise<{ nodes: GraphNode[]; edges: GraphEdge[] }> {
+  return fetchJson(`${BASE_URL}/graph${projectParam(projectPath)}`);
 }
 
-export async function fetchNodeDetails(nodeId: string): Promise<{ node: GraphNode; edges: GraphEdge[] }> {
-  return fetchJson(`${BASE_URL}/graph?nodeId=${nodeId}`);
+export async function fetchNodeDetails(nodeId: string, projectPath?: string): Promise<{ node: GraphNode; edges: GraphEdge[] }> {
+  return fetchJson(`${BASE_URL}/graph?nodeId=${nodeId}${projectParam(projectPath, '&')}`);
 }
 
-export async function fetchNeighbors(nodeId: string, direction: 'in' | 'out' | 'both' = 'both') {
+export async function fetchNeighbors(nodeId: string, direction: 'in' | 'out' | 'both' = 'both', projectPath?: string) {
   return fetchJson<{ neighbors: GraphNode[]; edges: GraphEdge[] }>(
-    `${BASE_URL}/graph?nodeId=${nodeId}&action=neighbors&direction=${direction}`
+    `${BASE_URL}/graph?nodeId=${nodeId}&action=neighbors&direction=${direction}${projectParam(projectPath, '&')}`
   );
 }
 
-export async function fetchStats() {
+export async function fetchStats(projectPath?: string) {
   return fetchJson<{ nodeCount: number; edgeCount: number; nodesByType: Record<string, number> }>(
-    `${BASE_URL}/graph?action=stats`
+    `${BASE_URL}/graph?action=stats${projectParam(projectPath, '&')}`
   );
 }
 
 // Docs API
-export async function fetchDocs(): Promise<{ count: number; docs: DocEntry[] }> {
-  return fetchJson(`${BASE_URL}/docs`);
+export async function fetchDocs(projectPath?: string): Promise<{ count: number; docs: DocEntry[] }> {
+  return fetchJson(`${BASE_URL}/docs${projectParam(projectPath)}`);
 }
 
-export async function fetchDoc(moduleId: string): Promise<DocEntry> {
-  return fetchJson(`${BASE_URL}/docs?moduleId=${moduleId}`);
+export async function fetchDoc(moduleId: string, projectPath?: string): Promise<DocEntry> {
+  return fetchJson(`${BASE_URL}/docs?moduleId=${moduleId}${projectParam(projectPath, '&')}`);
 }
 
-export async function updateDoc(moduleId: string, content: string): Promise<void> {
+export async function updateDoc(moduleId: string, content: string, projectPath?: string): Promise<void> {
   await fetchJson(`${BASE_URL}/docs`, {
     method: 'PUT',
-    body: JSON.stringify({ moduleId, content }),
+    body: JSON.stringify({ moduleId, content, project: projectPath }),
   });
 }
 
 // Changes API
-export async function fetchPendingChanges(): Promise<{ count: number; changes: ChangeSpec[] }> {
-  return fetchJson(`${BASE_URL}/changes`);
+export async function fetchPendingChanges(projectPath?: string): Promise<{ count: number; changes: ChangeSpec[] }> {
+  return fetchJson(`${BASE_URL}/changes${projectParam(projectPath)}`);
 }
 
 export async function fetchChangeSpec(id: string): Promise<ChangeSpec> {
@@ -66,18 +70,19 @@ export async function createChange(
   source: ChangeSpec['source'],
   target: ChangeSpec['target'],
   affectedModules?: string[],
-  impact?: ChangeSpec['impact']
+  impact?: ChangeSpec['impact'],
+  projectPath?: string
 ): Promise<ChangeSpec> {
   return fetchJson(`${BASE_URL}/changes`, {
     method: 'POST',
-    body: JSON.stringify({ action, description, source, target, affectedModules, impact }),
+    body: JSON.stringify({ action, description, source, target, affectedModules, impact, project: projectPath }),
   });
 }
 
-export async function updateChangeStatus(id: string, status: string): Promise<void> {
+export async function updateChangeStatus(id: string, status: string, projectPath?: string): Promise<void> {
   await fetchJson(`${BASE_URL}/changes`, {
     method: 'PATCH',
-    body: JSON.stringify({ id, status }),
+    body: JSON.stringify({ id, status, project: projectPath }),
   });
 }
 
@@ -92,7 +97,7 @@ export async function triggerIndex(projectPath: string, incremental = false, wat
     watching: boolean;
   }>(`${BASE_URL}/index`, {
     method: 'POST',
-    body: JSON.stringify({ path: projectPath, incremental, watch }),
+    body: JSON.stringify({ path: projectPath, incremental, watch, project: projectPath }),
   });
 }
 

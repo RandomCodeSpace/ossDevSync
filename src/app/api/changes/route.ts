@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
   const specId = searchParams.get('id');
 
   try {
-    await ensureDb();
+    const project = searchParams.get('project');
+    await ensureDb(project || undefined);
     if (specId) {
       const spec = getChangeSpec(specId);
       if (!spec) {
@@ -26,8 +27,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await ensureDb();
     const body = await request.json();
+    await ensureDb(body.project || undefined);
     const { action, description, source, target, affectedModules, impact } = body;
 
     if (!action || !description) {
@@ -53,8 +54,8 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    await ensureDb();
     const body = await request.json();
+    await ensureDb(body.project || undefined);
     const { id, status } = body;
 
     if (!id || !status) {

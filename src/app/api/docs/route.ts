@@ -6,7 +6,8 @@ export async function GET(request: NextRequest) {
   const moduleId = searchParams.get('moduleId');
 
   try {
-    await ensureDb();
+    const project = searchParams.get('project');
+    await ensureDb(project || undefined);
     if (moduleId) {
       const doc = getDoc(moduleId);
       if (!doc) {
@@ -24,8 +25,8 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    await ensureDb();
     const body = await request.json();
+    await ensureDb(body.project || undefined);
     const { moduleId, content } = body;
 
     if (!moduleId || !content) {

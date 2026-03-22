@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
   const action = searchParams.get('action');
 
   try {
-    await ensureDb();
+    const project = searchParams.get('project');
+    await ensureDb(project || undefined);
     if (action === 'stats') {
       return NextResponse.json(getStats());
     }

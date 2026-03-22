@@ -86,8 +86,9 @@ export const useGraphStore = create<GraphState>((set, get) => ({
   loadGraph: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { nodes, edges } = await fetchGraph();
-      const stats = await fetchStats();
+      const projectPath = get().projectPath || undefined;
+      const { nodes, edges } = await fetchGraph(projectPath);
+      const stats = await fetchStats(projectPath);
       set({
         nodes,
         edges,

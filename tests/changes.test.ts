@@ -7,6 +7,7 @@ import os from 'os';
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'osssync-changes-test-'));
 
 before(async () => {
+  process.env.OSSSYNC_DB_DIR = tmpDir;
   const { initDb } = await import('../src/core/db');
   await initDb(tmpDir);
 });
@@ -14,6 +15,7 @@ before(async () => {
 after(async () => {
   const { closeDb } = await import('../src/core/db');
   closeDb();
+  delete process.env.OSSSYNC_DB_DIR;
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 

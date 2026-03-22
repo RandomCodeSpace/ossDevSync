@@ -1,19 +1,24 @@
 import Graph from 'graphology';
-import { getAllNodes, getAllEdges, insertNode, insertEdge, deleteNode, deleteEdge, clearGraph as clearDbGraph } from './db';
+import { getAllNodes, getAllEdges, insertNode, insertEdge, deleteNode, deleteEdge, clearGraph as clearDbGraph, getActiveProjectPath } from './db';
 import type { GraphNode, GraphEdge, NodeType, EdgeType } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 let graph: Graph | null = null;
+let graphProjectPath: string | null = null;
 
 export function getGraph(): Graph {
-  if (!graph) {
-    graph = new Graph({ multi: true, type: 'directed' });
-    try {
-      loadFromDb();
-    } catch {
-      graph = null;
-      throw new Error('Failed to load graph from database. Is the DB initialized?');
-    }
+  const currentProject = getActiveProjectPath();
+  if (graph && graphProjectPath === currentProject) return graph;
+
+  // Project changed or first load — rebuild
+  graph = new Graph({ multi: true, type: 'directed' });
+  graphProjectPath = currentProject;
+  try {
+    loadFromDb();
+  } catch {
+    graph = null;
+    graphProjectPath = null;
+    throw new Error('Failed to load graph from database. Is the DB initialized?');
   }
   return graph;
 }
@@ -279,6 +284,7 @@ export function clearAll(): void {
   if (graph) {
     graph.clear();
   }
+  graphProjectPath = null;
   clearDbGraph();
 }
 

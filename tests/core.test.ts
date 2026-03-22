@@ -9,6 +9,7 @@ const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ossdevsync-test-'));
 const projectDir = path.join(tmpDir, 'test-project');
 
 before(() => {
+  process.env.OSSSYNC_DB_DIR = tmpDir;
   // Create a fake project structure
   fs.mkdirSync(path.join(projectDir, 'src', 'api'), { recursive: true });
   fs.mkdirSync(path.join(projectDir, 'src', 'utils'), { recursive: true });
@@ -39,6 +40,7 @@ before(() => {
 after(async () => {
   const { closeDb } = await import('../src/core/db');
   closeDb();
+  delete process.env.OSSSYNC_DB_DIR;
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
