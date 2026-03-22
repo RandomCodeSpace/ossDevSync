@@ -1,0 +1,71 @@
+name: Publish Beta to GitHub Packages
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish-beta:
+    name: Publish Beta
+    runs-on: ubuntu-latest
+    # Skip if commit message is a version bump or release
+    if: "!contains(github.event.head_commit.message, 'chore: bump beta')"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@randomcodespace'
+
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+      - name: Bump beta version and publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get current version
+          CURRENT=$(node -p "require('./package.json').version")
+
+          # Calculate next beta version
+          if echo "$CURRENT" | grep -q "beta"; then
+            # Already a beta — increment the beta number
+            NEXT=$(node -p "
+              const v = '$CURRENT';
+              const [base, beta] = v.split('-beta.');
+              base + '-beta.' + (parseInt(beta) + 1);
+            ")
+          else
+            # Not a beta — create first beta of next patch
+            NEXT=$(node -p "
+              const v = '$CURRENT'.split('.');
+              v[2] = parseInt(v[2]) + 1;
+              v.join('.') + '-beta.0';
+            ")
+          fi
+
+          echo "Publishing $NEXT"
+
+          # Update package.json version
+          npm version "$NEXT" --no-git-tag-version
+
+          # Publish with beta tag
+          npm publish --access public --tag beta
+
+          # Commit the version bump
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore: bump beta to $NEXT [skip ci]"
+          git push
