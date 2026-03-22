@@ -1,22 +1,83 @@
 {
-  "name": "oss-sync-app",
+  "name": "@ossrandom/ossdevsync",
   "version": "0.1.0",
-  "private": true,
+  "description": "Codebase knowledge graph, auto-documentation & interactive architecture editor with MCP server integration",
+  "author": "RandomCodeSpace <mail@ossrandom.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/RandomCodeSpace/ossDevSync#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RandomCodeSpace/ossDevSync.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RandomCodeSpace/ossDevSync/issues"
+  },
+  "keywords": [
+    "mcp",
+    "knowledge-graph",
+    "codebase",
+    "architecture",
+    "documentation",
+    "developer-tools",
+    "model-context-protocol",
+    "code-intelligence",
+    "drag-drop",
+    "react-flow"
+  ],
+  "bin": {
+    "ossdevsync": "./bin/cli.js"
+  },
+  "files": [
+    "src",
+    "bin",
+    "public",
+    "server.ts",
+    "next.config.ts",
+    "tsconfig.json",
+    "postcss.config.mjs",
+    "tailwind.config.ts"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "mcp": "tsx src/mcp/standalone.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint",
+    "test": "node --test tests/**/*.test.ts",
+    "prepublishOnly": "npm run typecheck && npm run build"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@tiptap/pm": "^3.20.4",
+    "@tiptap/react": "^3.20.4",
+    "@tiptap/starter-kit": "^3.20.4",
+    "@xyflow/react": "^12.10.1",
+    "better-sqlite3": "^12.8.0",
+    "chokidar": "^5.0.0",
+    "graphology": "^0.26.0",
     "next": "16.2.1",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "tsx": "^4.21.0",
+    "uuid": "^13.0.0",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
