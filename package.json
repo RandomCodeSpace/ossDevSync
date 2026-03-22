@@ -1,6 +1,6 @@
 {
   "name": "@randomcodespace/ossdevsync",
-  "version": "0.1.1-beta.8",
+  "version": "0.1.1-beta.9",
   "description": "Codebase knowledge graph, auto-documentation & interactive architecture editor with MCP server integration",
   "author": "RandomCodeSpace <mail@ossrandom.com>",
   "license": "MIT",
