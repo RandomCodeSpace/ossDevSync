@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execSync, spawn } = require('child_process');
+const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -8,12 +8,19 @@ const args = process.argv.slice(2);
 const command = args[0];
 const pkgDir = path.resolve(__dirname, '..');
 
-function run(cmd, opts = {}) {
-  return spawn('npx', cmd.split(' '), {
+function getPort() {
+  if (args.includes('--port')) return args[args.indexOf('--port') + 1];
+  if (args.includes('-p')) return args[args.indexOf('-p') + 1];
+  return '3000';
+}
+
+function run(cmd) {
+  const child = spawn('npx', cmd.split(' '), {
     cwd: pkgDir,
     stdio: 'inherit',
-    ...opts,
+    shell: true,
   });
+  child.on('exit', (code) => process.exit(code || 0));
 }
 
 const HELP = `
@@ -23,8 +30,8 @@ const HELP = `
     ossdevsync [command] [options]
 
   Commands:
-    dev           Start development server (default)
-    start         Start production server
+    start         Start production server (default)
+    dev           Start development server
     build         Build for production
     mcp           Start MCP server (stdio transport)
     help          Show this help message
@@ -33,10 +40,9 @@ const HELP = `
     --port, -p    Port number (default: 3000)
 
   Examples:
-    ossdevsync                    Start dev server on port 3000
-    ossdevsync dev --port 4000    Start dev server on port 4000
+    ossdevsync                    Build & start production server
+    ossdevsync dev                Start dev server with hot reload
     ossdevsync mcp                Start as MCP server for Claude Code
-    ossdevsync build && ossdevsync start
 
   MCP Setup (Claude Code):
     Add to your MCP settings:
@@ -57,26 +63,42 @@ switch (command) {
     console.log(HELP);
     break;
 
+  case 'dev': {
+    run(`next dev --port ${getPort()}`);
+    break;
+  }
+
   case 'build':
     run('next build');
     break;
-
-  case 'start': {
-    const port = args.includes('--port') ? args[args.indexOf('--port') + 1] :
-                 args.includes('-p') ? args[args.indexOf('-p') + 1] : '3000';
-    run(`next start --port ${port}`);
-    break;
-  }
 
   case 'mcp':
     run('tsx src/mcp/standalone.ts');
     break;
 
-  case 'dev':
+  case 'start': {
+    run(`next start --port ${getPort()}`);
+    break;
+  }
+
   default: {
-    const port = args.includes('--port') ? args[args.indexOf('--port') + 1] :
-                 args.includes('-p') ? args[args.indexOf('-p') + 1] : '3000';
-    run(`next dev --port ${port}`);
+    // Default: build if .next doesn't exist, then start
+    const dotNext = path.join(pkgDir, '.next');
+    if (!fs.existsSync(dotNext)) {
+      console.log('Building for production...');
+      const build = spawn('npx', ['next', 'build'], {
+        cwd: pkgDir,
+        stdio: 'inherit',
+        shell: true,
+      });
+      build.on('exit', (code) => {
+        if (code !== 0) process.exit(code || 1);
+        console.log('Starting production server...');
+        run(`next start --port ${getPort()}`);
+      });
+    } else {
+      run(`next start --port ${getPort()}`);
+    }
     break;
   }
 }
