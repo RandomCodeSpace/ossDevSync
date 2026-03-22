@@ -51,7 +51,7 @@
     "mcp": "tsx src/mcp/standalone.ts",
     "typecheck": "tsc --noEmit",
     "lint": "next lint",
-    "test": "npx tsx --test tests/core.test.ts tests/graph.test.ts tests/db.test.ts tests/changes.test.ts tests/indexer.test.ts tests/watcher.test.ts",
+    "test": "npx tsx --test tests/core.test.ts && npx tsx --test tests/graph.test.ts && npx tsx --test tests/db.test.ts && npx tsx --test tests/changes.test.ts && npx tsx --test tests/indexer.test.ts && npx tsx --test tests/watcher.test.ts",
     "prepublishOnly": "npm run typecheck && npm run build"
   },
   "dependencies": {
