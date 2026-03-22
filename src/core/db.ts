@@ -15,6 +15,8 @@ let db: SqlJsDatabase | null = null;
 let dbPath: string | null = null;
 let initPromise: Promise<SqlJsDatabase> | null = null;
 let activeProjectPath: string | null = null;
+let lastFileModTime: number = 0;
+let sqlInstance: any = null; // cached sql.js WASM instance
 
 export function getDb(): SqlJsDatabase {
   if (db) return db;
@@ -34,9 +36,26 @@ function requireActiveProject(): string {
   return activeProjectPath;
 }
 
+// Reload DB from disk if another process has written to it
+export function reloadFromDisk(): void {
+  if (!db || !dbPath || !sqlInstance) return;
+  try {
+    const stat = fs.statSync(dbPath);
+    const modTime = stat.mtimeMs;
+    if (modTime > lastFileModTime) {
+      const buffer = fs.readFileSync(dbPath);
+      db.close();
+      db = new sqlInstance.Database(buffer);
+      lastFileModTime = modTime;
+    }
+  } catch { /* file may not exist yet */ }
+}
+
 export async function ensureDb(projectPath?: string): Promise<SqlJsDatabase> {
   if (db) {
     if (projectPath) activeProjectPath = projectPath;
+    // Check if disk file is newer (another process may have written)
+    reloadFromDisk();
     return db;
   }
   if (initPromise) {
@@ -78,16 +97,18 @@ export async function initDb(projectPath?: string): Promise<SqlJsDatabase> {
     } catch { /* try next */ }
   }
 
-  const SQL = await initSqlJs({
+  sqlInstance = await initSqlJs({
     ...(wasmBinary ? { wasmBinary } : {}),
   });
 
   // Load existing DB if it exists
   if (fs.existsSync(dbPath)) {
     const buffer = fs.readFileSync(dbPath);
-    db = new SQL.Database(buffer);
+    db = new sqlInstance.Database(buffer);
+    lastFileModTime = fs.statSync(dbPath).mtimeMs;
   } else {
-    db = new SQL.Database();
+    db = new sqlInstance.Database();
+    lastFileModTime = Date.now();
   }
 
   initSchema(db);
@@ -176,6 +197,7 @@ function saveDb(): void {
   if (db && dbPath) {
     const data = db.export();
     fs.writeFileSync(dbPath, Buffer.from(data));
+    lastFileModTime = Date.now();
   }
 }
 
@@ -409,5 +431,7 @@ export function closeDb(): void {
     dbPath = null;
     initPromise = null;
     activeProjectPath = null;
+    lastFileModTime = 0;
+    sqlInstance = null;
   }
 }
