@@ -71,13 +71,17 @@ describe('Core Engine', () => {
   });
 
   it('should generate docs for modules', async () => {
+    // Re-index to ensure graph is populated
+    const { indexProject } = await import('../src/core/indexer');
+    await indexProject(projectDir);
+
     const { generateDocs } = await import('../src/core/doc-generator');
     const { getAllDocs } = await import('../src/core/db');
 
     generateDocs();
     const docs = getAllDocs();
 
-    assert.ok(docs.length > 0, 'Should generate at least one doc');
+    assert.ok(docs.length > 0, `Should generate at least one doc, got ${docs.length}`);
     assert.ok(docs[0].content.length > 0, 'Doc content should not be empty');
   });
 
