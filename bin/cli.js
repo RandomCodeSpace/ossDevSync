@@ -7,6 +7,7 @@ const fs = require('fs');
 const args = process.argv.slice(2);
 const command = args[0];
 const pkgDir = path.resolve(__dirname, '..');
+const binDir = path.join(pkgDir, 'node_modules', '.bin');
 
 function getPort() {
   if (args.includes('--port')) return args[args.indexOf('--port') + 1];
@@ -14,11 +15,11 @@ function getPort() {
   return '3000';
 }
 
-function run(cmd) {
-  const child = spawn('npx', cmd.split(' '), {
+function run(bin, cmdArgs) {
+  const binPath = path.join(binDir, bin);
+  const child = spawn(binPath, cmdArgs, {
     cwd: pkgDir,
     stdio: 'inherit',
-    shell: true,
   });
   child.on('exit', (code) => process.exit(code || 0));
 }
@@ -63,41 +64,39 @@ switch (command) {
     console.log(HELP);
     break;
 
-  case 'dev': {
-    run(`next dev --port ${getPort()}`);
+  case 'dev':
+    run('next', ['dev', '--port', getPort()]);
     break;
-  }
 
   case 'build':
-    run('next build');
+    run('next', ['build']);
     break;
 
   case 'mcp':
-    run('tsx src/mcp/standalone.ts');
+    run('tsx', ['src/mcp/standalone.ts']);
     break;
 
-  case 'start': {
-    run(`next start --port ${getPort()}`);
+  case 'start':
+    run('next', ['start', '--port', getPort()]);
     break;
-  }
 
   default: {
     // Default: build if .next doesn't exist, then start
     const dotNext = path.join(pkgDir, '.next');
     if (!fs.existsSync(dotNext)) {
       console.log('Building for production...');
-      const build = spawn('npx', ['next', 'build'], {
+      const nextBin = path.join(binDir, 'next');
+      const build = spawn(nextBin, ['build'], {
         cwd: pkgDir,
         stdio: 'inherit',
-        shell: true,
       });
       build.on('exit', (code) => {
         if (code !== 0) process.exit(code || 1);
         console.log('Starting production server...');
-        run(`next start --port ${getPort()}`);
+        run('next', ['start', '--port', getPort()]);
       });
     } else {
-      run(`next start --port ${getPort()}`);
+      run('next', ['start', '--port', getPort()]);
     }
     break;
   }
