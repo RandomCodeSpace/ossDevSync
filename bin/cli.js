@@ -2,7 +2,6 @@
 
 const { spawn } = require('child_process');
 const path = require('path');
-const fs = require('fs');
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -33,7 +32,6 @@ const HELP = `
   Commands:
     start         Start production server (default)
     dev           Start development server
-    build         Build for production
     mcp           Start MCP server (stdio transport)
     help          Show this help message
 
@@ -41,7 +39,8 @@ const HELP = `
     --port, -p    Port number (default: 3000)
 
   Examples:
-    ossdevsync                    Build & start production server
+    ossdevsync                    Start production server
+    ossdevsync --port 4000        Start on port 4000
     ossdevsync dev                Start dev server with hot reload
     ossdevsync mcp                Start as MCP server for Claude Code
 
@@ -68,36 +67,12 @@ switch (command) {
     run('next', ['dev', '--port', getPort()]);
     break;
 
-  case 'build':
-    run('next', ['build']);
-    break;
-
   case 'mcp':
     run('tsx', ['src/mcp/standalone.ts']);
     break;
 
   case 'start':
+  default:
     run('next', ['start', '--port', getPort()]);
     break;
-
-  default: {
-    // Default: build if .next doesn't exist, then start
-    const dotNext = path.join(pkgDir, '.next');
-    if (!fs.existsSync(dotNext)) {
-      console.log('Building for production...');
-      const nextBin = path.join(binDir, 'next');
-      const build = spawn(nextBin, ['build'], {
-        cwd: pkgDir,
-        stdio: 'inherit',
-      });
-      build.on('exit', (code) => {
-        if (code !== 0) process.exit(code || 1);
-        console.log('Starting production server...');
-        run('next', ['start', '--port', getPort()]);
-      });
-    } else {
-      run('next', ['start', '--port', getPort()]);
-    }
-    break;
-  }
 }

@@ -31,11 +31,11 @@
     "src",
     "bin",
     "public",
+    ".next",
     "server.ts",
     "next.config.ts",
     "tsconfig.json",
-    "postcss.config.mjs",
-    "tailwind.config.ts"
+    "postcss.config.mjs"
   ],
   "publishConfig": {
     "access": "public",
