@@ -90,9 +90,17 @@ npm run dev
 
 ossDevSync works as an [MCP server](https://modelcontextprotocol.io) for AI coding agents.
 
-### Claude Code
+### Claude Code (CLI)
 
-Add to your Claude Code MCP settings (`~/.claude/settings.json`):
+**Option 1 — Use the Claude Code CLI to add it directly:**
+
+```bash
+claude mcp add ossdevsync -- ossdevsync mcp
+```
+
+This registers the MCP server in your project's `.mcp.json`.
+
+**Option 2 — Add to project config (`.mcp.json` in project root):**
 
 ```json
 {
@@ -105,18 +113,49 @@ Add to your Claude Code MCP settings (`~/.claude/settings.json`):
 }
 ```
 
-Or with npx:
+**Option 3 — Add globally (`~/.claude/settings.json`):**
 
 ```json
 {
   "mcpServers": {
     "ossdevsync": {
-      "command": "npx",
-      "args": ["@randomcodespace/ossdevsync", "mcp"]
+      "command": "ossdevsync",
+      "args": ["mcp"]
     }
   }
 }
 ```
+
+> After adding, restart Claude Code or run `/mcp` to verify the server is connected. You should see 12 ossdevsync tools available.
+
+### VS Code (Copilot / Continue / Cline)
+
+**Step 1 — Create `.vscode/mcp.json` in your project root:**
+
+```json
+{
+  "servers": {
+    "ossdevsync": {
+      "command": "ossdevsync",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+**Step 2 — Enable MCP in VS Code settings (`settings.json`):**
+
+```json
+{
+  "chat.mcp.enabled": true
+}
+```
+
+**Step 3 — Reload VS Code** (`Ctrl+Shift+P` → `Developer: Reload Window`).
+
+The MCP server will appear in the MCP server list. Click the MCP icon in the Chat panel to verify it's connected.
+
+> **Note:** VS Code MCP support requires VS Code 1.99+ with GitHub Copilot Chat extension. For other AI extensions like Continue or Cline, refer to their MCP configuration docs — they use the same `command` and `args` format.
 
 ### Available MCP Tools
 
