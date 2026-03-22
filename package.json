@@ -1,5 +1,5 @@
 {
-  "name": "@ossrandom/ossdevsync",
+  "name": "@randomcodespace/ossdevsync",
   "version": "0.1.0",
   "description": "Codebase knowledge graph, auto-documentation & interactive architecture editor with MCP server integration",
   "author": "RandomCodeSpace <mail@ossrandom.com>",
@@ -39,7 +39,7 @@
   ],
   "publishConfig": {
     "access": "public",
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://npm.pkg.github.com"
   },
   "engines": {
     "node": ">=20.0.0"

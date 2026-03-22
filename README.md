@@ -11,11 +11,11 @@
   <a href="https://github.com/RandomCodeSpace/ossDevSync/actions/workflows/ci.yml">
     <img src="https://github.com/RandomCodeSpace/ossDevSync/actions/workflows/ci.yml/badge.svg" alt="CI" />
   </a>
-  <a href="https://www.npmjs.com/package/@ossrandom/ossdevsync">
-    <img src="https://img.shields.io/npm/v/@ossrandom/ossdevsync.svg" alt="npm version" />
+  <a href="https://www.npmjs.com/package/@randomcodespace/ossdevsync">
+    <img src="https://img.shields.io/npm/v/@randomcodespace/ossdevsync.svg" alt="npm version" />
   </a>
-  <a href="https://www.npmjs.com/package/@ossrandom/ossdevsync">
-    <img src="https://img.shields.io/npm/dm/@ossrandom/ossdevsync.svg" alt="npm downloads" />
+  <a href="https://www.npmjs.com/package/@randomcodespace/ossdevsync">
+    <img src="https://img.shields.io/npm/dm/@randomcodespace/ossdevsync.svg" alt="npm downloads" />
   </a>
   <a href="https://github.com/RandomCodeSpace/ossDevSync/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/RandomCodeSpace/ossDevSync.svg" alt="License" />
@@ -55,7 +55,7 @@ Code → Knowledge Graph → Web UI → Edit Architecture → Change Spec → Ag
 ### Install
 
 ```bash
-npm install -g @ossrandom/ossdevsync
+npm install -g @randomcodespace/ossdevsync
 ```
 
 ### Run
@@ -65,7 +65,7 @@ npm install -g @ossrandom/ossdevsync
 ossdevsync
 
 # Or with npx (no install)
-npx @ossrandom/ossdevsync
+npx @randomcodespace/ossdevsync
 ```
 
 Open [http://localhost:3000](http://localhost:3000), click **Index Project**, and enter the path to your codebase.
@@ -107,7 +107,7 @@ Or with npx:
   "mcpServers": {
     "ossdevsync": {
       "command": "npx",
-      "args": ["@ossrandom/ossdevsync", "mcp"]
+      "args": ["@randomcodespace/ossdevsync", "mcp"]
     }
   }
 }
