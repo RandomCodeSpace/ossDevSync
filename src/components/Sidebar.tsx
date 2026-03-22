@@ -16,7 +16,7 @@ const TYPE_ICONS: Record<NodeType, string> = {
   external: '\u{1F517}',
 };
 
-const TYPE_ORDER: NodeType[] = ['project', 'module', 'api', 'schema', 'route', 'config', 'external'];
+const TYPE_ORDER: NodeType[] = ['project', 'module', 'entry', 'api', 'schema', 'route', 'config', 'external'];
 
 export default function Sidebar() {
   const { nodes } = useGraphStore();

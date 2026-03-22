@@ -1,9 +1,13 @@
-import initSqlJs from 'sql.js';
-
-// sql.js types: Database is a top-level declared class
-type SqlJsDatabase = InstanceType<Awaited<ReturnType<typeof initSqlJs>>['Database']>;
 import fs from 'fs';
 import path from 'path';
+
+// Dynamic require hidden from Turbopack's static analysis
+// eslint-disable-next-line no-eval
+const _sqljs = 'sql.js';
+const initSqlJs: any = eval('require')(_sqljs);
+
+// sql.js Database type — use any since the dynamic require loses types
+type SqlJsDatabase = any;
 import type { GraphNode, GraphEdge, DocEntry, ChangeSpec } from '../types';
 
 let db: SqlJsDatabase | null = null;
@@ -326,8 +330,8 @@ export function updateChangeSpecStatus(id: string, status: ChangeSpec['status'])
 // Clear all data (for re-indexing)
 export function clearGraph(): void {
   const database = getDb();
-  database.run('DELETE FROM docs');
-  database.run('DELETE FROM change_specs');
+  database.run('DELETE FROM docs WHERE is_manually_edited = 0');
+  database.run("DELETE FROM change_specs WHERE status IN ('completed', 'rejected')");
   database.run('DELETE FROM edges');
   database.run('DELETE FROM nodes');
   saveDb();
@@ -339,5 +343,6 @@ export function closeDb(): void {
     db.close();
     db = null;
     dbPath = null;
+    initPromise = null;
   }
 }

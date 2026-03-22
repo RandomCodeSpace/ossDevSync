@@ -32,12 +32,17 @@ export function matchZodSchemas(projectPath: string): void {
           continue;
         }
 
+        const seenSchemas = new Set<string>();
+
         for (const pattern of ZOD_PATTERNS) {
           const regex = new RegExp(pattern.source, pattern.flags);
           let match;
 
           while ((match = regex.exec(content)) !== null) {
             const schemaName = match[1];
+
+            if (seenSchemas.has(schemaName)) continue;
+            seenSchemas.add(schemaName);
 
             const schemaNode = addNode('schema', schemaName, filePath, {
               source: 'zod',

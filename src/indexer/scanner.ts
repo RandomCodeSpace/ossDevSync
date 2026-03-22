@@ -46,6 +46,16 @@ function scanDirectory(dirPath: string, parentId: string, depth: number, maxDept
   const dirs = entries.filter(e => e.isDirectory() && !IGNORE_DIRS.has(e.name) && !e.name.startsWith('.'));
   const files = entries.filter(e => e.isFile());
 
+  // Check for config files in this directory
+  for (const file of files) {
+    if (CONFIG_FILES.has(file.name)) {
+      const configNode = addNode('config', file.name, path.join(dirPath, file.name), {
+        format: path.extname(file.name).slice(1) || 'text',
+      });
+      addEdgeBetween(parentId, configNode.id, 'configured_by');
+    }
+  }
+
   for (const dir of dirs) {
     const fullPath = path.join(dirPath, dir.name);
     const moduleType = inferModuleType(dir.name, fullPath);
@@ -56,16 +66,6 @@ function scanDirectory(dirPath: string, parentId: string, depth: number, maxDept
     });
 
     addEdgeBetween(parentId, moduleNode.id, 'contains');
-
-    // Check for config files in this directory
-    for (const file of files) {
-      if (CONFIG_FILES.has(file.name)) {
-        const configNode = addNode('config', file.name, path.join(dirPath, file.name), {
-          format: path.extname(file.name).slice(1) || 'text',
-        });
-        addEdgeBetween(parentId, configNode.id, 'configured_by');
-      }
-    }
 
     if (includeEntries) {
       scanEntryFiles(fullPath, moduleNode.id);

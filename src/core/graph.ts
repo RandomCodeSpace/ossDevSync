@@ -8,7 +8,12 @@ let graph: Graph | null = null;
 export function getGraph(): Graph {
   if (!graph) {
     graph = new Graph({ multi: true, type: 'directed' });
-    loadFromDb();
+    try {
+      loadFromDb();
+    } catch {
+      graph = null;
+      throw new Error('Failed to load graph from database. Is the DB initialized?');
+    }
   }
   return graph;
 }

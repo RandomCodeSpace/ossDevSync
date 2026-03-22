@@ -1,6 +1,7 @@
 import chokidar, { type FSWatcher } from 'chokidar';
 import path from 'path';
 import { indexProject } from './indexer';
+import { generateDocs } from './doc-generator';
 
 let watcher: FSWatcher | null = null;
 let debounceTimer: NodeJS.Timeout | null = null;
@@ -38,7 +39,8 @@ export function startWatching(projectPath: string, onChange?: () => void): void 
 
     debounceTimer = setTimeout(async () => {
       try {
-        await indexProject(projectPath, false);
+        await indexProject(projectPath, true);
+        generateDocs();
         onChangeCallback?.();
       } catch (err) {
         console.error('Error re-indexing after file change:', err);

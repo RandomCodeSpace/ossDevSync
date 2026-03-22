@@ -8,6 +8,8 @@ import { useGraphStore } from '../stores/graph-store';
 import { useUIStore } from '../stores/ui-store';
 
 const GraphCanvas = dynamic(() => import('../components/GraphCanvas'), { ssr: false });
+const DocEditor = dynamic(() => import('../components/DocEditor'), { ssr: false });
+const ChangeQueue = dynamic(() => import('../components/ChangeQueue'), { ssr: false });
 
 export default function Home() {
   const { stats, isLoading, indexProject } = useGraphStore();
@@ -73,8 +75,8 @@ export default function Home() {
 
         <main className="flex-1 relative">
           {activeView === 'graph' && <GraphCanvas />}
-          {activeView === 'docs' && <DocsView />}
-          {activeView === 'changes' && <ChangesView />}
+          {activeView === 'docs' && <DocEditor />}
+          {activeView === 'changes' && <ChangeQueue />}
         </main>
 
         <DetailPanel />
@@ -116,13 +118,3 @@ export default function Home() {
   );
 }
 
-// Lazy load these views
-function DocsView() {
-  const DocEditor = dynamic(() => import('../components/DocEditor'), { ssr: false });
-  return <DocEditor />;
-}
-
-function ChangesView() {
-  const ChangeQueue = dynamic(() => import('../components/ChangeQueue'), { ssr: false });
-  return <ChangeQueue />;
-}

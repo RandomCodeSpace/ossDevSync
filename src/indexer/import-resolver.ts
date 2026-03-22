@@ -71,7 +71,7 @@ function scanModuleImports(modulePath: string): string[] {
 
         while ((match = regex.exec(content)) !== null) {
           const importPath = match[1];
-          if (importPath && !importPath.startsWith('.') === false || importPath.startsWith('.')) {
+          if (importPath) {
             imports.push(importPath);
           }
         }

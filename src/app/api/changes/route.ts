@@ -61,6 +61,11 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'id and status are required' }, { status: 400 });
     }
 
+    const validStatuses = ['pending_approval', 'approved', 'in_progress', 'completed', 'rejected'];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+    }
+
     const spec = getChangeSpec(id);
     if (!spec) {
       return NextResponse.json({ error: 'Change spec not found' }, { status: 404 });

@@ -35,11 +35,13 @@ function generateModuleDoc(node: GraphNode): string {
   lines.push(`**Path:** \`${node.path}\``);
   lines.push('');
 
+  // Dependencies (modules this one imports)
+  const outEdges = getNodeEdges(node.id, 'out');
+
   // Children (contained modules/entries)
   const children = getNeighbors(node.id, 'out')
     .filter(n => {
-      const edges = getNodeEdges(node.id, 'out');
-      return edges.some(e => e.targetId === n.id && e.type === 'contains');
+      return outEdges.some(e => e.targetId === n.id && e.type === 'contains');
     });
 
   if (children.length > 0) {
@@ -50,9 +52,6 @@ function generateModuleDoc(node: GraphNode): string {
     }
     lines.push('');
   }
-
-  // Dependencies (modules this one imports)
-  const outEdges = getNodeEdges(node.id, 'out');
   const imports = outEdges.filter(e => e.type === 'imports');
 
   if (imports.length > 0) {
