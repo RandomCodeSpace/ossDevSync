@@ -43,9 +43,15 @@ after(async () => {
 });
 
 describe('Core Engine', () => {
-  it('should index a project and create nodes', async () => {
+  // Index once before all tests in this suite — inits DB + graph
+  let indexResult: any;
+  before(async () => {
     const { indexProject } = await import('../src/core/indexer');
-    const result = await indexProject(projectDir);
+    indexResult = await indexProject(projectDir);
+  });
+
+  it('should index a project and create nodes', async () => {
+    const result = indexResult;
 
     assert.ok(result.nodeCount > 0, `Expected nodes, got ${result.nodeCount}`);
     assert.ok(result.edgeCount > 0, `Expected edges, got ${result.edgeCount}`);
