@@ -266,7 +266,7 @@ export function updateChangeSpecStatus(id: string, status: ChangeSpec['status'])
 // Clear all data (for re-indexing)
 export function clearGraph(): void {
   const db = getDb();
-  db.exec('DELETE FROM edges; DELETE FROM nodes; DELETE FROM docs;');
+  db.exec('DELETE FROM docs; DELETE FROM edges; DELETE FROM nodes;');
 }
 
 export function closeDb(): void {
