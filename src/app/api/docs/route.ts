@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDoc, getAllDocs, upsertDoc } from '../../../core/db';
+import { getDoc, getAllDocs, upsertDoc, ensureDb } from '../../../core/db';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const moduleId = searchParams.get('moduleId');
 
   try {
+    await ensureDb();
     if (moduleId) {
       const doc = getDoc(moduleId);
       if (!doc) {
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    await ensureDb();
     const body = await request.json();
     const { moduleId, content } = body;
 

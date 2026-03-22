@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { indexProject } from '../../core/indexer';
 import { getNodeData, getNeighbors, getNodeEdges, findPath, getImpact, exportGraph, getStats } from '../../core/graph';
-import { getDb } from '../../core/db';
+import { ensureDb } from '../../core/db';
 
 export function registerQueryTools(server: McpServer): void {
   // Index/re-index a project

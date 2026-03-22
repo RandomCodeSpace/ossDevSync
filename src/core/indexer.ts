@@ -4,7 +4,7 @@ import { matchExpressRoutes } from '../indexer/pattern-matchers/express';
 import { matchPrismaSchemas } from '../indexer/pattern-matchers/prisma';
 import { matchZodSchemas } from '../indexer/pattern-matchers/zod';
 import { clearAll, getStats } from './graph';
-import { getDb } from './db';
+import { initDb } from './db';
 
 export interface IndexResult {
   projectPath: string;
@@ -17,8 +17,8 @@ export interface IndexResult {
 export async function indexProject(projectPath: string, incremental = false): Promise<IndexResult> {
   const start = Date.now();
 
-  // Ensure DB is initialized
-  getDb(projectPath);
+  // Ensure DB is initialized (async for sql.js WASM loading)
+  await initDb(projectPath);
 
   if (!incremental) {
     clearAll();

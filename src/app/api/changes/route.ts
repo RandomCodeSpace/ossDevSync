@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPendingChangeSpecs, getChangeSpec, insertChangeSpec, updateChangeSpecStatus } from '../../../core/db';
+import { getPendingChangeSpecs, getChangeSpec, insertChangeSpec, updateChangeSpecStatus, ensureDb } from '../../../core/db';
 import { createChangeSpec } from '../../../changes/spec';
 import type { ChangeAction } from '../../../types';
 
@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const specId = searchParams.get('id');
 
   try {
+    await ensureDb();
     if (specId) {
       const spec = getChangeSpec(specId);
       if (!spec) {
@@ -25,6 +26,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    await ensureDb();
     const body = await request.json();
     const { action, description, source, target, affectedModules, impact } = body;
 
@@ -51,6 +53,7 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    await ensureDb();
     const body = await request.json();
     const { id, status } = body;
 

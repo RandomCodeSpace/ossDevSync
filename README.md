@@ -11,11 +11,8 @@
   <a href="https://github.com/RandomCodeSpace/ossDevSync/actions/workflows/ci.yml">
     <img src="https://github.com/RandomCodeSpace/ossDevSync/actions/workflows/ci.yml/badge.svg" alt="CI" />
   </a>
-  <a href="https://www.npmjs.com/package/@randomcodespace/ossdevsync">
-    <img src="https://img.shields.io/npm/v/@randomcodespace/ossdevsync.svg" alt="npm version" />
-  </a>
-  <a href="https://www.npmjs.com/package/@randomcodespace/ossdevsync">
-    <img src="https://img.shields.io/npm/dm/@randomcodespace/ossdevsync.svg" alt="npm downloads" />
+  <a href="https://github.com/RandomCodeSpace/ossDevSync/pkgs/npm/ossdevsync">
+    <img src="https://img.shields.io/github/v/release/RandomCodeSpace/ossDevSync?label=version" alt="version" />
   </a>
   <a href="https://github.com/RandomCodeSpace/ossDevSync/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/RandomCodeSpace/ossDevSync.svg" alt="License" />
@@ -53,6 +50,14 @@ Code → Knowledge Graph → Web UI → Edit Architecture → Change Spec → Ag
 ## Quick Start
 
 ### Install
+
+Configure the GitHub Packages registry for the `@randomcodespace` scope:
+
+```bash
+echo "@randomcodespace:registry=https://npm.pkg.github.com" >> ~/.npmrc
+```
+
+Then install:
 
 ```bash
 npm install -g @randomcodespace/ossdevsync

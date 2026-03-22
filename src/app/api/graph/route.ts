@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exportGraph, getNodeData, getNeighbors, getNodeEdges, getStats } from '../../../core/graph';
+import { ensureDb } from '../../../core/db';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -7,6 +8,7 @@ export async function GET(request: NextRequest) {
   const action = searchParams.get('action');
 
   try {
+    await ensureDb();
     if (action === 'stats') {
       return NextResponse.json(getStats());
     }
