@@ -1,26 +1,54 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Sidebar from '../components/Sidebar';
 import DetailPanel from '../components/DetailPanel';
 import { useGraphStore } from '../stores/graph-store';
 import { useUIStore } from '../stores/ui-store';
+import { fetchProjects } from '../api/client';
 
 const GraphCanvas = dynamic(() => import('../components/GraphCanvas'), { ssr: false });
 const DocEditor = dynamic(() => import('../components/DocEditor'), { ssr: false });
 const ChangeQueue = dynamic(() => import('../components/ChangeQueue'), { ssr: false });
 
 export default function Home() {
-  const { stats, isLoading, indexProject } = useGraphStore();
+  const { stats, isLoading, indexProject, loadGraph, projectPath: storeProjectPath, setProjectPath: setStoreProjectPath } = useGraphStore();
   const { activeView, setView, toggleSidebar, sidebarOpen } = useUIStore();
   const [projectPath, setProjectPath] = useState('');
   const [showIndexDialog, setShowIndexDialog] = useState(false);
+  const [availableProjects, setAvailableProjects] = useState<string[]>([]);
+
+  // On mount: fetch available projects and auto-load the first one
+  useEffect(() => {
+    fetchProjects()
+      .then(({ projects }) => {
+        setAvailableProjects(projects);
+        if (projects.length > 0 && !storeProjectPath) {
+          setStoreProjectPath(projects[0]);
+          loadGraph();
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Reload graph when store projectPath changes
+  useEffect(() => {
+    if (storeProjectPath) {
+      loadGraph();
+    }
+  }, [storeProjectPath]);
 
   const handleIndex = async () => {
     if (!projectPath.trim()) return;
     await indexProject(projectPath.trim());
+    // Refresh available projects
+    fetchProjects().then(({ projects }) => setAvailableProjects(projects)).catch(() => {});
     setShowIndexDialog(false);
+  };
+
+  const handleProjectSwitch = (path: string) => {
+    setStoreProjectPath(path);
   };
 
   return (
@@ -35,7 +63,7 @@ export default function Home() {
           {sidebarOpen ? '\u25C0' : '\u25B6'}
         </button>
 
-        <h1 className="text-sm font-semibold text-white tracking-wide">ossSync</h1>
+        <h1 className="text-sm font-semibold text-white tracking-wide">ossDevSync</h1>
 
         <nav className="flex gap-1 ml-4">
           {(['graph', 'docs', 'changes'] as const).map((view) => (
@@ -54,6 +82,21 @@ export default function Home() {
         </nav>
 
         <div className="flex-1" />
+
+        {/* Project selector */}
+        {availableProjects.length > 0 && (
+          <select
+            value={storeProjectPath || ''}
+            onChange={(e) => handleProjectSwitch(e.target.value)}
+            className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs text-gray-300 max-w-48 truncate"
+          >
+            {availableProjects.map((p) => (
+              <option key={p} value={p}>
+                {p.split('/').slice(-2).join('/')}
+              </option>
+            ))}
+          </select>
+        )}
 
         {stats && (
           <span className="text-xs text-gray-500">
@@ -117,4 +160,3 @@ export default function Home() {
     </div>
   );
 }
-

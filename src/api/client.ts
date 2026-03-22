@@ -104,3 +104,8 @@ export async function triggerIndex(projectPath: string, incremental = false, wat
 export async function stopWatcher(): Promise<void> {
   await fetchJson(`${BASE_URL}/index`, { method: 'DELETE' });
 }
+
+// Projects API
+export async function fetchProjects(): Promise<{ projects: string[] }> {
+  return fetchJson(`${BASE_URL}/projects`);
+}
