@@ -43,9 +43,11 @@ after(async () => {
 });
 
 describe('Core Engine', () => {
-  // Index once before all tests in this suite — inits DB + graph
+  // Init DB + index once before all tests in this suite
   let indexResult: any;
   before(async () => {
+    const { initDb } = await import('../src/core/db');
+    await initDb(projectDir);
     const { indexProject } = await import('../src/core/indexer');
     indexResult = await indexProject(projectDir);
   });
@@ -114,6 +116,11 @@ describe('Core Engine', () => {
 });
 
 describe('Change Specs', () => {
+  before(async () => {
+    const { ensureDb } = await import('../src/core/db');
+    await ensureDb(projectDir);
+  });
+
   it('should create and retrieve change specs', async () => {
     const { createChangeSpec } = await import('../src/changes/spec');
     const { insertChangeSpec, getPendingChangeSpecs } = await import('../src/core/db');
