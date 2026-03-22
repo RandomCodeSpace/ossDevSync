@@ -36,7 +36,9 @@ before(() => {
   `);
 });
 
-after(() => {
+after(async () => {
+  const { closeDb } = await import('../src/core/db');
+  closeDb();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 

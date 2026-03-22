@@ -1,7 +1,9 @@
 name: Publish Beta to GitHub Packages
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
 
 permissions:
@@ -12,11 +14,15 @@ jobs:
   publish-beta:
     name: Publish Beta
     runs-on: ubuntu-latest
-    # Skip if commit message is a version bump or release
-    if: "!contains(github.event.head_commit.message, 'chore: bump beta')"
+    # Only publish if CI passed AND it was a push (not PR) AND not a version bump commit
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      !contains(github.event.workflow_run.head_commit.message, 'chore: bump beta')
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -28,8 +34,8 @@ jobs:
           scope: '@randomcodespace'
 
       - run: npm ci
-      - run: npx tsc --noEmit
       - run: npm run build
+      - run: npm test
 
       - name: Bump beta version and publish
         env:
