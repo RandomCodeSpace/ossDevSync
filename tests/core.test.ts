@@ -71,10 +71,7 @@ describe('Core Engine', () => {
   });
 
   it('should generate docs for modules', async () => {
-    // Re-index to ensure graph is populated
-    const { indexProject } = await import('../src/core/indexer');
-    await indexProject(projectDir);
-
+    // generateDocs uses the already-populated graph from the first indexing
     const { generateDocs } = await import('../src/core/doc-generator');
     const { getAllDocs } = await import('../src/core/db');
 
