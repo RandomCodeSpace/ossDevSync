@@ -32,7 +32,27 @@ export async function initDb(projectPath?: string): Promise<SqlJsDatabase> {
   fs.mkdirSync(dir, { recursive: true });
   dbPath = path.join(dir, 'osssync.db');
 
-  const SQL = await initSqlJs();
+  // Load WASM binary directly to avoid path resolution issues with bundlers
+  const wasmPaths = [
+    path.join(process.cwd(), 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm'),
+    path.join(__dirname, '..', '..', 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm'),
+    path.join(__dirname, '..', 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm'),
+  ];
+
+  let wasmBinary: ArrayBuffer | undefined;
+  for (const wp of wasmPaths) {
+    try {
+      if (fs.existsSync(wp)) {
+        const buf = fs.readFileSync(wp);
+        wasmBinary = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+        break;
+      }
+    } catch { /* try next */ }
+  }
+
+  const SQL = await initSqlJs({
+    ...(wasmBinary ? { wasmBinary } : {}),
+  });
 
   // Load existing DB if it exists
   if (fs.existsSync(dbPath)) {
